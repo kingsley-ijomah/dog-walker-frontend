@@ -1,0 +1,53 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/auth/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Verify OTP</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="verify-otp-container">
+    <form class="verify-otp-form" [formGroup]="otpForm" (ngSubmit)="onSubmit()">
+      <div class="form-description">
+        <h2>Enter Verification Code</h2>
+        <p>We have sent a verification code to your email address. Please enter it below.</p>
+      </div>
+
+      <div class="otp-inputs">
+        <ion-item class="otp-field" *ngFor="let control of otpControls; let i = index">
+          <ion-input
+            type="text"
+            maxlength="1"
+            [formControlName]="'digit' + i"
+            (ionInput)="onOtpInput($event, i)"
+            (keydown)="onKeyDown($event, i)"
+            (paste)="onPaste($event)"
+            inputmode="numeric"
+            pattern="[0-9]*">
+          </ion-input>
+        </ion-item>
+      </div>
+
+      <span class="error-message" *ngIf="showError">
+        {{ errorMessage }}
+      </span>
+
+      <ion-button 
+        expand="block" 
+        class="submit-button"
+        type="submit"
+        [disabled]="!otpForm.valid || isSubmitting">
+        Verify Code
+      </ion-button>
+
+      <div class="resend-link">
+        Didn't receive the code?
+        <a href="javascript:void(0)" (click)="resendOtp()" [class.disabled]="resendDisabled">
+          Resend {{ resendTimer > 0 ? '(' + resendTimer + 's)' : '' }}
+        </a>
+      </div>
+    </form>
+  </div>
+</ion-content> 
