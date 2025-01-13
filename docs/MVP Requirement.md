@@ -257,9 +257,9 @@ The Minimum Viable Product (MVP) will focus on essential features required for b
 ### Authentication Pages
 
 #### Landing Page
-- [ ] As a new user, I want to see an overview of app features so that I can understand the value proposition
-- [ ] As a visitor, I want clear login/register buttons so that I can easily access the app
-- [ ] As a returning user, I want to quickly access the login page so that I can get to my account
+- [x] As a new user, I want to see an overview of app features so that I can understand the value proposition
+- [x] As a visitor, I want clear login/register buttons so that I can easily access the app
+- [x] As a returning user, I want to quickly access the login page so that I can get to my account
 
 #### Login Page
 - [ ] As a registered user, I want to login with my credentials so that I can access my account
