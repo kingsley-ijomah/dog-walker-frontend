@@ -252,6 +252,34 @@ The Minimum Viable Product (MVP) will focus on essential features required for b
 - Basic group communication functionality
 - Positive user feedback on core features
 
+### MVP App Navigation Tabs
+Based on the core MVP features, the mobile application will have the following bottom navigation tabs:
+
+1. Home
+   - Dashboard showing upcoming walks
+   - Quick access to joined groups
+   - Important notifications
+
+2. Groups
+   - List of joined groups
+   - Group discovery/search
+   - Group creation
+
+3. Walks
+   - Calendar view of scheduled walks
+   - Create new walk events
+   - Manage walk participations
+
+4. Chat
+   - Group conversations
+   - Walk-related communications
+   - Notification center
+
+5. Profile
+   - Personal information management
+   - Dog profile management
+   - Settings and preferences
+
 ## User Stories by Page
 
 ### Authentication Pages
