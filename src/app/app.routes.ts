@@ -20,5 +20,5 @@ export const routes: Routes = [
   {
     path: 'verify-otp',
     loadComponent: () => import('./auth/pages/verify-otp/verify-otp.page').then(m => m.VerifyOtpPage)
-  }
+  },
 ];
