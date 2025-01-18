@@ -1,19 +1,26 @@
 ### Bottom Tabs
 
-using ionic generate a standalone component in path tab2
-generate standalone pages: home, groups, walks, chat within tab2/pages
+#### Step 1
+using ionic, generate a standalone component in path: tab
 
-update @tab2.component.html Update this so it becomes a footer tab containing the following links. Home, groups, walks, chats. use routerLink
+#### Step 2
+manual create tab.routes.ts
+here lets create an empty angular routes and let the default root path redirect to home for now
 
-here lets create a nested routing pointing to pages within ./pages directory
+#### Step 3
+(home, groups, walks, chat)
+generate standalone page called home within tabs/pages
 
-add a tab2 path that will load both component and route from ./tab2
+#### Step 4
+update app.routes
+Add a new path called tabs that loads both component and children from ./tabs/tabs.component and ./tabs/tabs.routes
 
-{
-  path: 'tabs',
-  loadComponent: () => import('./tabs/tabs.component').then(m => m.TabsComponent),
-  loadChildren: () => import('./tabs/tabs.routes').then(m => m.routes)
-},
+#### Step 5
+update @tabs.component.html Update this so it becomes a footer tab containing the following links. Home, groups, walks, chats. dont use routerLink we will rely on just the tab naming
+
+#### Step 6
+update @tabs.component.ts to import all required components and icons used in @tabs.component.html
+
 
 
 ### Top Bar
