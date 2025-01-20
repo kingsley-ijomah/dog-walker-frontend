@@ -1,10 +1,10 @@
 ### Bottom Tabs
 
 #### Step 1
-using ionic, generate a standalone component in path: tab
+using ionic, generate a standalone component in path: tabs
 
 #### Step 2
-manual create tab.routes.ts
+manual create tabs.routes.ts
 here lets create an empty angular routes and let the default root path redirect to home for now
 
 #### Step 3
@@ -16,21 +16,23 @@ update app.routes
 Add a new path called tabs that loads both component and children from ./tabs/tabs.component and ./tabs/tabs.routes
 
 #### Step 5
-update @tabs.component.html Update this so it becomes a footer tab containing the following links. Home, groups, walks, chats. dont use routerLink we will rely on just the tab naming
-
-#### Step 6
-update @tabs.component.ts to import all required components and icons used in @tabs.component.html
-
+update @tabs.component.html Update this so it becomes a footer tab containing the following links. Home, groups, walks, chats. dont use routerLink we will rely on just the tab naming, also update the tabs component to include all necessary imports
 
 
 ### Top Bar
-Create a top navigation system in an Ionic Angular project. The navigation bar should include the [company name] displayed on the left side and a profile icon positioned on the right side. 
 
-Clicking on the profile icon should display a popover or dropdown menu with the following options: Edit Profile, Logout, settings, for now don't create those pages. 
+#### Step 1
+lets create a standalone shared component and save it in shared/components called top-banner, should have company name to left "Dog Walker" and icon of profile to the right", icon should not be clickable for now.
 
-Ensure the navigation bar is visible on all pages unless explicitly hidden on specific routes, such as login or splash screens. Use a responsive design that adapts to different screen sizes, including mobile, tablet, and desktop. 
+#### Step 2
+I want the top-banner available to all the @tabs pages
 
-The navigation bar should be implemented using Ionic components, and the profile menu functionality should utilize Ionic Popover or a similar dynamic component.
+#### Step 3
+lets create a shared component and save it in shared/components called profile-popover, it should have links to edit profile, settings and logout, for now it should link to no where.
 
-company name is: Dog Walkers
+#### Step 4
+update the top-banner component to show the profile-popover when the profile icon is clicked.
+
+
+
 

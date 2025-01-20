@@ -21,4 +21,9 @@ export const routes: Routes = [
     path: 'verify-otp',
     loadComponent: () => import('./auth/pages/verify-otp/verify-otp.page').then(m => m.VerifyOtpPage)
   },
+  {
+    path: 'tabs',
+    loadComponent: () => import('./tabs/tabs.component').then(m => m.TabsComponent),
+    loadChildren: () => import('./tabs/tabs.route').then(m => m.routes)
+  },
 ];
