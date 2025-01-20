@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, PopoverController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { personOutline, logOutOutline } from 'ionicons/icons';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile-popover',
@@ -11,12 +12,33 @@ import { personOutline, logOutOutline } from 'ionicons/icons';
   imports: [IonicModule]
 })
 export class ProfilePopoverComponent {
-  menuItems = [
-    { icon: 'person-outline', text: 'Edit Profile', action: () => console.log('Edit Profile clicked') },
-    { icon: 'log-out-outline', text: 'Logout', action: () => console.log('Logout clicked') }
-  ];
-
-  constructor() {
+  constructor(
+    private router: Router,
+    private popoverController: PopoverController
+  ) {
     addIcons({ personOutline, logOutOutline });
   }
+
+  async navigateToProfile() {
+    await this.popoverController.dismiss();
+    this.router.navigate(['/tabs/profile']);
+  }
+
+  async logout() {
+    await this.popoverController.dismiss();
+    console.log('Logout clicked');
+  }
+
+  menuItems = [
+    { 
+      icon: 'person-outline', 
+      text: 'Edit Profile', 
+      action: () => this.navigateToProfile()
+    },
+    { 
+      icon: 'log-out-outline', 
+      text: 'Logout', 
+      action: () => this.logout()
+    }
+  ];
 }
