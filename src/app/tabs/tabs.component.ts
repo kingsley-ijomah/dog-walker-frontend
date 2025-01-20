@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, IonRouterOutlet } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { homeOutline, peopleOutline, walkOutline, chatbubblesOutline } from 'ionicons/icons';
+import { TopBannerComponent } from '../shared/components/top-banner/top-banner.component';
 
 @Component({
   selector: 'app-tabs',
@@ -14,7 +15,8 @@ import { homeOutline, peopleOutline, walkOutline, chatbubblesOutline } from 'ion
     IonTabButton,
     IonIcon,
     IonLabel,
-    IonRouterOutlet
+    IonRouterOutlet,
+    TopBannerComponent
   ]
 })
 export class TabsComponent {

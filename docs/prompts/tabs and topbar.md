@@ -28,7 +28,7 @@ lets create a standalone shared component and save it in shared/components calle
 I want the top-banner available to all the @tabs pages
 
 #### Step 3
-lets create a shared component and save it in shared/components called profile-popover, it should have links to edit profile, settings and logout, for now it should link to no where.
+lets create a shared component and save it in shared/components called profile-popover, it should have links to edit profile and logout, for now it should link to no where.
 
 #### Step 4
 update the top-banner component to show the profile-popover when the profile icon is clicked.
