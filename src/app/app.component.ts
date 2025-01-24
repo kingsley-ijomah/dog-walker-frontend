@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { StorageService } from './services/init/storage.service';
-// import { AuthService } from './services/auth.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -12,9 +12,9 @@ import { StorageService } from './services/init/storage.service';
 export class AppComponent {
   constructor(
     private storageService: StorageService,
-    // private authService: AuthService
+    private authService: AuthService
   ) {
     this.storageService.init().subscribe();
-    // this.authService.init().subscribe();
+    this.authService.init().subscribe();
   }
 }
