@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  backendEndpoint: 'http://127.0.0.1:3000/graphql',
+  // generated with: openssl rand -hex 32
+  encryptionKey: 'bd4ddd18c1849b59f8f49d1a8a31d13f4d7b891169a288aefd098d0882ee7075',
 };
 
 /*

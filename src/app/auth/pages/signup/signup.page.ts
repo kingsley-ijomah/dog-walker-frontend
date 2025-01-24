@@ -1,7 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { GraphQLService } from '../../../services/graphql.service';
+import { SignUpMutation } from '../../../graphql/mutations/auth/signUp.mutation';
+import { ErrorService } from '../../../services/errors/error.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import {
   IonHeader,
   IonToolbar,
@@ -44,17 +49,26 @@ import {
 export class SignupPage implements OnInit {
   signupForm: FormGroup;
   isSubmitted = false;
+  backendErrors: string[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private graphQLService: GraphQLService,
+    private errorService: ErrorService,
+    private destroyRef: DestroyRef,
+    private router: Router
   ) {
     this.signupForm = this.formBuilder.group({
-      fullName: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]],
-      telephone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+      fullName: ['King Ijomah', [Validators.required, Validators.minLength(2)]],
+      email: ['king@email.com', [Validators.required, Validators.email]],
+      password: ['password&123', [
+        Validators.required,
+        Validators.minLength(6),
+        Validators.pattern(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$/)
+      ]],
+      confirmPassword: ['password&123', [Validators.required]],
+      telephone: ['08033333333', [Validators.required, Validators.pattern('^[0-9]+$')]],
       acceptTerms: [false, [Validators.requiredTrue]]
     }, {
       validators: this.passwordMatchValidator
@@ -86,6 +100,20 @@ export class SignupPage implements OnInit {
     if (this.signupForm.invalid) {
       return;
     }
+
+    this.graphQLService
+      .mutate(SignUpMutation, this.signupForm.value, 'signUp')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.signupForm.reset();
+          this.backendErrors = [];
+          this.router.navigate(['/signin']);
+        },
+        error: () => {
+          this.backendErrors = this.errorService.errors;
+        }
+      });
 
     // Show success toast
     const toast = await this.toastController.create({
