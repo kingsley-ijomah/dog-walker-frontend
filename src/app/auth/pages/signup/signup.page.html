@@ -7,15 +7,6 @@
   </ion-toolbar>
 </ion-header>
 
-  <!-- Backend Errors -->
-  <ion-item lines="none" *ngIf="backendErrors?.length" class="status-messages error-messages">
-    <ion-text color="danger">
-      <ng-container *ngFor="let error of backendErrors">
-        <p>{{ error }}</p>
-      </ng-container>
-    </ion-text>
-  </ion-item>
-
 <ion-content [fullscreen]="true" class="ion-padding">
   <div class="signup-container">
     <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
@@ -92,6 +83,15 @@
       <ion-text color="danger" class="error-message" *ngIf="isSubmitted && f['acceptTerms'].errors">
         You must accept the terms and conditions
       </ion-text>
+
+      <!-- Backend Errors -->
+      <ion-item lines="none" *ngIf="backendErrors?.length" class="status-messages error-messages">
+        <ion-text color="danger">
+          <ng-container *ngFor="let error of backendErrors">
+            <p>{{ error }}</p>
+          </ng-container>
+        </ion-text>
+      </ion-item>
 
       <ion-button 
         type="submit" 

@@ -115,11 +115,7 @@ export class SignupPage implements OnInit {
             this.router.navigate(['/login']);
           },
           error: (error) => {
-            if (error.validationErrors) {
-              this.backendErrors = error.validationErrors;
-            } else {
-              console.error('Signup error:', error);
-            }
+            this.backendErrors = this.errorService.errors;
           }
         });
     }
