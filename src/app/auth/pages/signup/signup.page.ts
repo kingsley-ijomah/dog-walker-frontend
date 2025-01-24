@@ -2,7 +2,7 @@ import { Component, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { GraphQLService } from '../../../services/graphql.service';
+import { AuthService } from '../../../services/auth/auth.service';
 import { SignUpMutation } from '../../../graphql/mutations/auth/signUp.mutation';
 import { ErrorService } from '../../../services/errors/error.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -54,7 +54,7 @@ export class SignupPage implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private toastController: ToastController,
-    private graphQLService: GraphQLService,
+    private authService: AuthService,
     private errorService: ErrorService,
     private destroyRef: DestroyRef,
     private router: Router
@@ -96,37 +96,34 @@ export class SignupPage implements OnInit {
 
   async onSubmit() {
     this.isSubmitted = true;
+    this.backendErrors = [];
 
-    if (this.signupForm.invalid) {
-      return;
+    if (this.signupForm.valid) {
+      const { confirmPassword, ...signupData } = this.signupForm.value;
+      
+      this.authService
+        .signUp(signupData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: async (response) => {
+            const toast = await this.toastController.create({
+              message: 'Sign up successful! Please check your email for verification.',
+              duration: 3000,
+              position: 'bottom',
+              color: 'success'
+            });
+            await toast.present();
+            this.router.navigate(['/login']);
+          },
+          error: (error) => {
+            if (error.validationErrors) {
+              this.backendErrors = error.validationErrors;
+            } else {
+              console.error('Signup error:', error);
+            }
+          }
+        });
     }
-
-    this.graphQLService
-      .mutate(SignUpMutation, this.signupForm.value, 'signUp')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.signupForm.reset();
-          this.backendErrors = [];
-          this.router.navigate(['/signin']);
-        },
-        error: () => {
-          this.backendErrors = this.errorService.errors;
-        }
-      });
-
-    // Show success toast
-    const toast = await this.toastController.create({
-      message: 'Registration successful!',
-      duration: 2000,
-      position: 'bottom',
-      color: 'success'
-    });
-    toast.present();
-
-    // Reset form
-    this.signupForm.reset();
-    this.isSubmitted = false;
   }
 
   // Helper method to get error message

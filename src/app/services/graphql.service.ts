@@ -19,6 +19,7 @@ export abstract class GraphQLService {
       variables: input
     }).pipe(
       map((response: any) => {
+        console.log('Response', response);
         const result = response.data[responsePath];
         // debugger; // Breakpoint 1
         if (result?.errors && result.errors.length > 0) {
