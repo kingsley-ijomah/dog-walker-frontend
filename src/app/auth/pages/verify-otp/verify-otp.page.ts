@@ -1,9 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, QueryList, ViewChildren, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { interval, Subscription } from 'rxjs';
+import { BaseGraphQLPage } from '../../../shared/base/base-graphql.page';
+import { PasswordResetMutation } from '../../../graphql/mutations/auth/passwordReset.mutation';
+import { addIcons } from 'ionicons';
+import { eye, eyeOff } from 'ionicons/icons';
 
 @Component({
   selector: 'app-verify-otp',
@@ -12,31 +15,27 @@ import { interval, Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, IonicModule, ReactiveFormsModule]
 })
-export class VerifyOtpPage implements OnInit, OnDestroy {
+export class VerifyOtpPage extends BaseGraphQLPage implements OnInit {
+  @ViewChildren('otpInput') otpInputs!: QueryList<ElementRef>;
   otpForm: FormGroup;
   otpControls: number[] = [0, 1, 2, 3, 4]; // 5-digit OTP
   isSubmitting = false;
   showError = false;
   errorMessage = '';
-  resendTimer = 0;
-  resendDisabled = false;
-  private timerSubscription?: Subscription;
+  showPassword = false;
+  showConfirmPassword = false;
+  backendErrors: string[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router
   ) {
+    super();
+    addIcons({ eye, eyeOff });
     this.otpForm = this.createForm();
   }
 
   ngOnInit() {
-    this.startResendTimer();
-  }
-
-  ngOnDestroy() {
-    if (this.timerSubscription) {
-      this.timerSubscription.unsubscribe();
-    }
   }
 
   private createForm(): FormGroup {
@@ -48,69 +47,60 @@ export class VerifyOtpPage implements OnInit, OnDestroy {
         Validators.maxLength(1)
       ]];
     });
-    return this.formBuilder.group(group);
+    
+    group['newPassword'] = ['', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+    ]];
+    
+    group['confirmNewPassword'] = ['', [Validators.required]];
+
+    const formGroup = this.formBuilder.group(group);
+    formGroup.addValidators(this.passwordMatchValidator);
+    
+    return formGroup;
+  }
+
+  passwordMatchValidator(control: AbstractControl) {
+    const password = control.get('newPassword');
+    const confirmNewPassword = control.get('confirmNewPassword');
+
+    if (password && confirmNewPassword && password.value !== confirmNewPassword.value) {
+      confirmNewPassword.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
+    }
+    return null;
+  }
+
+  togglePasswordVisibility(field: 'password' | 'confirmNewPassword') {
+    if (field === 'password') {
+      this.showPassword = !this.showPassword;
+    } else {
+      this.showConfirmPassword = !this.showConfirmPassword;
+    }
+  }
+
+  getPasswordError(): string {
+    const control = this.otpForm.get('newPassword');
+    if (control?.errors) {
+      if (control.errors['required']) return 'Password is required';
+      if (control.errors['minlength']) return 'Password must be at least 8 characters';
+      if (control.errors['pattern']) return 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character';
+    }
+    return '';
   }
 
   onOtpInput(event: any, index: number) {
-    // Get the input value from the Ionic event
     const value = event.detail.value?.toString() || '';
-    
-    // Ensure input is a number and only one character
     const sanitizedValue = value.replace(/[^0-9]/g, '').substring(0, 1);
-    
-    // Update form control value
     this.otpForm.get('digit' + index)?.setValue(sanitizedValue);
 
-    // If we're on the last input and a valid number was entered, trigger submit
-    if (sanitizedValue && index === this.otpControls.length - 1) {
-      if (this.otpForm.valid) {
-        this.onSubmit();
-      }
-    }
-  }
-
-  onKeyDown(event: KeyboardEvent, index: number) {
-    // Handle backspace
-    if (event.key === 'Backspace') {
-      const currentValue = this.otpForm.get('digit' + index)?.value;
-      
-      // If current field is empty and not first field, move to previous field
-      if (!currentValue && index > 0) {
-        event.preventDefault(); // Prevent the default backspace behavior
-        const prevInput = document.querySelector(
-          `ion-input[formcontrolname="digit${index - 1}"] input`
-        ) as HTMLInputElement;
-        if (prevInput) {
-          prevInput.focus();
-          // Optional: Select the content of the previous input
-          prevInput.select();
-        }
-      }
-      // If current field has a value, clear it but stay in the same field
-      else if (currentValue) {
-        this.otpForm.get('digit' + index)?.setValue('');
-      }
-    }
-    // Handle left arrow
-    else if (event.key === 'ArrowLeft' && index > 0) {
-      event.preventDefault();
-      const prevInput = document.querySelector(
-        `ion-input[formcontrolname="digit${index - 1}"] input`
-      ) as HTMLInputElement;
-      if (prevInput) {
-        prevInput.focus();
-        prevInput.select();
-      }
-    }
-    // Handle right arrow
-    else if (event.key === 'ArrowRight' && index < this.otpControls.length - 1) {
-      event.preventDefault();
-      const nextInput = document.querySelector(
-        `ion-input[formcontrolname="digit${index + 1}"] input`
-      ) as HTMLInputElement;
+    // Move focus to the next input when manually entered
+    if (sanitizedValue && index < this.otpControls.length - 1) {
+      const nextInput = this.otpInputs.toArray()[index + 1]?.nativeElement;
       if (nextInput) {
         nextInput.focus();
-        nextInput.select();
       }
     }
   }
@@ -128,76 +118,39 @@ export class VerifyOtpPage implements OnInit, OnDestroy {
       }
     });
 
-    // Focus the next empty field or the last field if all are filled
+    // Focus the next empty field
     for (let i = 0; i < this.otpControls.length; i++) {
       if (!this.otpForm.get('digit' + i)?.value) {
-        const input = document.querySelector(
-          `ion-input[formcontrolname="digit${i}"] input`
-        ) as HTMLInputElement;
+        const input = this.otpInputs.toArray()[i]?.nativeElement;
         if (input) {
           input.focus();
           break;
         }
       }
     }
-
-    // If all fields are filled and valid, submit the form
-    if (this.otpForm.valid) {
-      this.onSubmit();
-    }
   }
 
   async onSubmit() {
     if (this.otpForm.valid && !this.isSubmitting) {
-      this.isSubmitting = true;
-      this.showError = false;
+      const otpCode = this.otpControls
+        .map(i => this.otpForm.get('digit' + i)?.value)
+        .join('');
+      
+      const otpData = this.otpForm.value;
 
-      try {
-        const otp = this.otpControls
-          .map(i => this.otpForm.get('digit' + i)?.value)
-          .join('');
-
-        // TODO: Implement OTP verification logic here
-        console.log('Verifying OTP:', otp);
-
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // For demo purposes, consider OTP '12345' as valid
-        if (otp === '12345') {
-          await this.router.navigate(['/auth/reset-password']);
-        } else {
-          this.showError = true;
-          this.errorMessage = 'Invalid verification code. Please try again.';
-        }
-      } catch (error) {
-        this.showError = true;
-        this.errorMessage = 'An error occurred. Please try again.';
-      } finally {
-        this.isSubmitting = false;
-      }
+      this.executeMutation({
+        mutation: PasswordResetMutation,
+        variables: {
+          otpCode,
+          newPassword: otpData.newPassword,
+          confirmNewPassword: otpData.confirmNewPassword
+        },
+        responsePath: 'passwordReset',
+        successMessage: 'Password reset successful!',
+        errorMessage: 'Password reset failed. Please check the errors and try again.',
+        onSuccess: () => this.router.navigate(['/login']),
+        onError: (error) => this.backendErrors = this.errorService.errors
+      });
     }
   }
-
-  resendOtp() {
-    if (!this.resendDisabled) {
-      // TODO: Implement resend OTP logic here
-      console.log('Resending OTP...');
-      this.startResendTimer();
-    }
-  }
-
-  private startResendTimer() {
-    this.resendTimer = 30; // 30 seconds cooldown
-    this.resendDisabled = true;
-
-    this.timerSubscription = interval(1000).subscribe(() => {
-      if (this.resendTimer > 0) {
-        this.resendTimer--;
-      } else {
-        this.resendDisabled = false;
-        this.timerSubscription?.unsubscribe();
-      }
-    });
-  }
-} 
+}

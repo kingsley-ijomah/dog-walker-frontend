@@ -1,17 +1,20 @@
-import gql from 'graphql-tag';
+import { gql } from 'apollo-angular';
 
 export const PasswordResetMutation = gql`
-  mutation PasswordReset($input: PasswordResetInput!) {
-    passwordReset(input: $input) {
+  mutation PasswordReset($otpCode: String!, $newPassword: String!, $confirmNewPassword: String!) {
+    passwordReset(input: {
+      otpCode: $otpCode,
+      newPassword: $newPassword,
+      confirmNewPassword: $confirmNewPassword
+    }) {
       data {
         id
         fullName
         email
         telephone
-        role
       }
-      message
       errors
+      message
       httpStatus
     }
   }
