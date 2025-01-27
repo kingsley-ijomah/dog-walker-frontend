@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
+import { OtpRequestMutation } from '../../../graphql/mutations/auth/otpRequest.mutation';
+import { BaseGraphQLPage } from '../../../shared/base/base-graphql.page';
 import {
   IonHeader,
   IonToolbar,
@@ -39,15 +41,17 @@ import {
     IonBackButton
   ]
 })
-export class ForgotPasswordPage implements OnInit {
+export class ForgotPasswordPage extends BaseGraphQLPage implements OnInit {
   forgotPasswordForm: FormGroup;
   isSubmitted = false;
+  backendErrors: string[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
     private toastController: ToastController,
     private router: Router
   ) {
+    super();
     this.forgotPasswordForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]]
     });
@@ -62,36 +66,23 @@ export class ForgotPasswordPage implements OnInit {
 
   async onSubmit() {
     this.isSubmitted = true;
+    this.backendErrors = [];
 
     if (this.forgotPasswordForm.invalid) {
       return;
     }
 
-    try {
-      // TODO: Implement actual API call to send OTP
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    const { email } = this.forgotPasswordForm.value;
 
-      // Show success toast
-      const toast = await this.toastController.create({
-        message: 'A 5-digit verification code has been sent to your email!',
-        duration: 3000,
-        position: 'bottom',
-        color: 'success'
-      });
-      await toast.present();
-
-      // Navigate to OTP verification page
-      await this.router.navigate(['/verify-otp']);
-    } catch (error) {
-      const toast = await this.toastController.create({
-        message: 'Failed to send verification code. Please try again.',
-        duration: 3000,
-        position: 'bottom',
-        color: 'danger'
-      });
-      await toast.present();
-    }
+    this.executeMutation({
+      mutation: OtpRequestMutation,
+      variables: { email },
+      responsePath: 'otpRequest',
+      successMessage: 'A verification code has been sent to your email!',
+      errorMessage: 'Failed to send verification code. Please try again.',
+      onSuccess: () => this.router.navigate(['/verify-otp']),
+      onError: (error) => this.backendErrors = this.errorService.errors
+    });
   }
 
   // Helper method to get error message

@@ -72,8 +72,8 @@ export class LoginPage implements OnInit {
     private errorService: ErrorService
   ) {
     this.loginForm = this.formBuilder.group({
-      email: ['king@testing.com', [Validators.required, Validators.email]],
-      password: ['Kingsley!23', [Validators.required]]
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]]
     });
   }
 
@@ -124,7 +124,7 @@ export class LoginPage implements OnInit {
         return;
       }
   
-      this.router.navigate(['/']);  // Fallback if neither admin nor platform admin
+      this.router.navigate(['/dashboard']);  // Fallback if neither admin nor platform admin
     });
   }
 
