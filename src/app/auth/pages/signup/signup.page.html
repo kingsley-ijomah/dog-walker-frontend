@@ -52,14 +52,14 @@
       <ion-item class="form-field">
         <ion-input
           type="password"
-          formControlName="confirmPassword"
+          formControlName="passwordConfirmation"
           placeholder="Confirm Password"
-          [class.ion-invalid]="isSubmitted && f['confirmPassword'].errors"
-          [class.ion-touched]="isSubmitted && f['confirmPassword'].errors"
+          [class.ion-invalid]="isSubmitted && f['passwordConfirmation'].errors"
+          [class.ion-touched]="isSubmitted && f['passwordConfirmation'].errors"
         ></ion-input>
       </ion-item>
-      <ion-text color="danger" class="error-message" *ngIf="isSubmitted && f['confirmPassword'].errors">
-        {{ getErrorMessage('confirmPassword') }}
+      <ion-text color="danger" class="error-message" *ngIf="isSubmitted && f['passwordConfirmation'].errors">
+        {{ getErrorMessage('passwordConfirmation') }}
       </ion-text>
 
       <ion-item class="form-field">

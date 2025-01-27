@@ -1,27 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { Apollo } from 'apollo-angular';
 import { ErrorService } from './errors/error.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export abstract class GraphQLService {
-
+export class GraphQLService {
   constructor(
     protected apollo: Apollo,
     protected errorService: ErrorService
   ) { }
 
-  mutate<T>(mutation: any, input: any, responsePath: string): Observable<T> {
+  mutate<T>(mutation: any, variables: any, responsePath: string): Observable<T> {
     return this.apollo.mutate({
       mutation: mutation,
-      variables: input
+      variables: variables
     }).pipe(
       map((response: any) => {
         const result = response.data[responsePath];
 
-        // debugger; // Breakpoint 1
         if (result?.errors && result.errors.length > 0) {
           throw this.errorService.validationError(result.errors);
         }

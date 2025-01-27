@@ -1,11 +1,10 @@
-import { Component, OnInit, DestroyRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../../services/auth/auth.service';
-import { ErrorService } from '../../../services/errors/error.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SignUpMutation } from '../../../graphql/mutations/auth/signUp.mutation';
 import { Router } from '@angular/router';
+import { BaseGraphQLPage } from '../../../shared/base/base-graphql.page';
 import {
   IonHeader,
   IonToolbar,
@@ -19,7 +18,6 @@ import {
   IonText,
   IonButtons,
   IonBackButton,
-  ToastController
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -45,29 +43,26 @@ import {
     IonBackButton
   ]
 })
-export class SignupPage implements OnInit {
+export class SignupPage extends BaseGraphQLPage implements OnInit {
   signupForm: FormGroup;
   isSubmitted = false;
   backendErrors: string[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
-    private toastController: ToastController,
-    private authService: AuthService,
-    private errorService: ErrorService,
-    private destroyRef: DestroyRef,
     private router: Router
   ) {
+    super();
     this.signupForm = this.formBuilder.group({
-      fullName: ['King Ijomah', [Validators.required, Validators.minLength(2)]],
-      email: ['king@email.com', [Validators.required, Validators.email]],
-      password: ['password&123', [
+      fullName: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [
         Validators.required,
         Validators.minLength(6),
         Validators.pattern(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$/)
       ]],
-      confirmPassword: ['password&123', [Validators.required]],
-      telephone: ['08033333333', [Validators.required, Validators.pattern('^[0-9]+$')]],
+      passwordConfirmation: ['', [Validators.required]],
+      telephone: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
       acceptTerms: [false, [Validators.requiredTrue]]
     }, {
       validators: this.passwordMatchValidator
@@ -79,12 +74,12 @@ export class SignupPage implements OnInit {
   // Custom validator for password match
   private passwordMatchValidator(form: FormGroup) {
     const password = form.get('password');
-    const confirmPassword = form.get('confirmPassword');
+    const passwordConfirmation = form.get('passwordConfirmation');
 
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
+    if (password && passwordConfirmation && password.value !== passwordConfirmation.value) {
+      passwordConfirmation.setErrors({ passwordMismatch: true });
     } else {
-      confirmPassword?.setErrors(null);
+      passwordConfirmation?.setErrors(null);
     }
   }
 
@@ -98,26 +93,24 @@ export class SignupPage implements OnInit {
     this.backendErrors = [];
 
     if (this.signupForm.valid) {
-      const { confirmPassword, ...signupData } = this.signupForm.value;
+      const signupData = this.signupForm.value;
       
-      this.authService
-        .signUp(signupData)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: async (response) => {
-            const toast = await this.toastController.create({
-              message: 'Sign up successful! Please check your email for verification.',
-              duration: 3000,
-              position: 'bottom',
-              color: 'success'
-            });
-            await toast.present();
-            this.router.navigate(['/login']);
-          },
-          error: (error) => {
-            this.backendErrors = this.errorService.errors;
-          }
-        });
+      this.executeMutation({
+        mutation: SignUpMutation,
+        variables: {
+          fullName: signupData.fullName,
+          email: signupData.email,
+          password: signupData.password,
+          passwordConfirmation: signupData.passwordConfirmation,
+          telephone: signupData.telephone,
+          acceptTerms: signupData.acceptTerms
+        },
+        responsePath: 'signUp',
+        successMessage: 'Sign up successful!',
+        errorMessage: 'Sign up failed. Please check the errors and try again.',
+        onSuccess: () => this.router.navigate(['/login']),
+        onError: (error) => this.backendErrors = this.errorService.errors
+      });
     }
   }
 
