@@ -4,8 +4,11 @@
       Dog Walker
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button routerLink="/login" class="login-btn">
+      <ion-button *ngIf="!isAuthenticated" routerLink="/login" class="login-btn">
         Login
+      </ion-button>
+      <ion-button *ngIf="isAuthenticated" (click)="logout()" class="login-btn">
+        Logout
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

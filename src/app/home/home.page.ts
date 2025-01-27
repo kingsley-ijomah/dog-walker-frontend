@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
+import { NgIf } from '@angular/common';
 import {
   IonHeader,
   IonToolbar,
@@ -19,6 +20,7 @@ import {
   logoTwitter,
   logoInstagram
 } from 'ionicons/icons';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -27,6 +29,7 @@ import {
   standalone: true,
   imports: [
     RouterLink,
+    NgIf,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -38,7 +41,12 @@ import {
   ],
 })
 export class HomePage {
-  constructor() {
+  isAuthenticated = false;
+
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {
     addIcons({ 
       peopleOutline, 
       calendarOutline, 
@@ -47,9 +55,20 @@ export class HomePage {
       logoTwitter,
       logoInstagram
     });
+
+    // Subscribe to authentication state
+    this.authService.isAuthenticated().subscribe(
+      isAuth => this.isAuthenticated = isAuth
+    );
   }
 
   get currentYear(): number {
     return new Date().getFullYear();
+  }
+
+  logout() {
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']);
+    });
   }
 }
