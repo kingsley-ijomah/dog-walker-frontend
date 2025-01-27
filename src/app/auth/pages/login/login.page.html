@@ -36,8 +36,17 @@
         {{ getErrorMessage('password') }}
       </ion-text>
 
+      <!-- Backend Errors -->
+      <ion-item lines="none" *ngIf="backendErrors?.length" class="status-messages error-messages">
+        <ion-text color="danger">
+          <ng-container *ngFor="let error of backendErrors">
+            <p>{{ error }}</p>
+          </ng-container>
+        </ion-text>
+      </ion-item>
+
       <div class="forgot-password">
-        <a routerLink="/forgot-password">Forgot Password?</a>
+        <a routerLink="/auth/forgot-password">Forgot Password?</a>
       </div>
 
       <ion-button 

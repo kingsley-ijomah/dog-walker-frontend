@@ -1,7 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { SignInMutation } from '../../../graphql/mutations/auth/signIn.mutation';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { BaseGraphQLPage } from '../../../shared/base/base-graphql.page';
+import { AuthService } from '../../../services/auth.service';
+import { ErrorService } from '../../../services/errors/error.service';
 import {
   IonHeader,
   IonToolbar,
@@ -14,8 +20,22 @@ import {
   IonText,
   IonButtons,
   IonBackButton,
-  ToastController
 } from '@ionic/angular/standalone';
+import { forkJoin } from 'rxjs';
+
+interface SignInResponse {
+  data: {
+    id: string;
+    fullName: string;
+    email: string;
+    telephone: string;
+    role: string;
+  };
+  token: string;
+  message: string;
+  errors: string[];
+  httpStatus: number;
+}
 
 @Component({
   selector: 'app-login',
@@ -42,14 +62,18 @@ import {
 export class LoginPage implements OnInit {
   loginForm: FormGroup;
   isSubmitted = false;
+  backendErrors: string[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
-    private toastController: ToastController
+    private router: Router,
+    private authService: AuthService,
+    private destroyRef: DestroyRef,
+    private errorService: ErrorService
   ) {
     this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      email: ['king@testing.com', [Validators.required, Validators.email]],
+      password: ['Kingsley!23', [Validators.required]]
     });
   }
 
@@ -62,23 +86,46 @@ export class LoginPage implements OnInit {
 
   async onSubmit() {
     this.isSubmitted = true;
+    this.backendErrors = [];
 
-    if (this.loginForm.invalid) {
-      return;
+    if (this.loginForm.valid) {
+      const loginData = this.loginForm.value;
+
+      this.authService.signIn(loginData)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loginForm.reset();
+          this.backendErrors = [];
+          this.navigateToDashboard();
+        },
+        error: () => {
+          this.backendErrors = this.errorService.errors;
+        }
+      });
     }
+  }
 
-    // Show success toast
-    const toast = await this.toastController.create({
-      message: 'Login successful!',
-      duration: 2000,
-      position: 'bottom',
-      color: 'success'
+  private navigateToDashboard(): void {
+    // subscribe to forkJoin to get the results of multiple observables
+    // better than using nested subscriptions
+    forkJoin({
+      isAdmin: this.authService.isAdmin(),
+      isPlatformAdmin: this.authService.isPlatformAdmin(),
+    }).subscribe(({ isAdmin, isPlatformAdmin }) => {
+
+      if (isAdmin) {
+        this.router.navigate(['/admin/dashboard']);
+        return;
+      }
+  
+      if (isPlatformAdmin) {
+        this.router.navigate(['/platform-admin/dashboard']);
+        return;
+      }
+  
+      this.router.navigate(['/']);  // Fallback if neither admin nor platform admin
     });
-    toast.present();
-
-    // Reset form
-    this.loginForm.reset();
-    this.isSubmitted = false;
   }
 
   // Helper method to get error message
