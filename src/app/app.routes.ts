@@ -39,5 +39,11 @@ export const routes: Routes = [
     path: 'owner',
     loadComponent: () => import('./platforms/owner/owner.component').then(m => m.OwnerComponent),
     loadChildren: () => import('./platforms/owner/owner.route').then(m => m.routes)
-  }
+  },
+  {
+    path: 'landing',
+    loadComponent: () => import('./platforms/landing/landing.component').then(m => m.LandingComponent),
+    loadChildren: () => import('./platforms/landing/landing.route').then(m => m.routes)
+  },
+
 ];
