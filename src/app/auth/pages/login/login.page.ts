@@ -2,10 +2,8 @@ import { Component, DestroyRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { SignInMutation } from '../../../graphql/mutations/auth/signIn.mutation';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { BaseGraphQLPage } from '../../../shared/base/base-graphql.page';
 import { AuthService } from '../../services/auth.service';
 import { ErrorService } from '../../../services/errors/error.service';
 import {
@@ -111,11 +109,11 @@ export class LoginPage implements OnInit {
     // better than using nested subscriptions
     forkJoin({
       isAdmin: this.authService.isAdmin(),
-      isPlatformAdmin: this.authService.isPlatformAdmin(),
+      isOwner: this.authService.isOwner(),
       isGuest: this.authService.isGuest(),
-    }).subscribe(({ isAdmin, isPlatformAdmin, isGuest }) => {
+    }).subscribe(({ isAdmin, isOwner, isGuest }) => {
 
-      if (isPlatformAdmin) {
+      if (isOwner) {
         this.router.navigate(['/owner/dashboard']);
         return;
       }

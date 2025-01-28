@@ -3,6 +3,7 @@ import { IonicModule, PopoverController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { personCircleOutline } from 'ionicons/icons';
 import { ProfilePopoverComponent } from '../profile-popover/profile-popover.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-top-banner',
@@ -12,7 +13,7 @@ import { ProfilePopoverComponent } from '../profile-popover/profile-popover.comp
   imports: [IonicModule]
 })
 export class TopBannerComponent {
-  companyName = 'Dog Walker';
+  companyName = environment.appName;
 
   constructor(private popoverController: PopoverController) {
     addIcons({ personCircleOutline });

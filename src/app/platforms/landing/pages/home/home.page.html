@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
     <ion-title>
-      Dog Walker
+      {{ appName }}
     </ion-title>
     <ion-buttons slot="end">
       <ion-button *ngIf="!isAuthenticated" routerLink="/login" class="login-btn">
@@ -18,7 +18,7 @@
   <div class="desktop-container">
     <div class="hero-section">
       <div class="hero-content">
-        <h1>Connect with Local Dog Walkers</h1>
+        <h1>Connect with Local {{ appName }}s</h1>
         <p class="subtitle">Join our community to find walking buddies for your furry friend</p>
         
         <ion-button expand="block" size="large" class="register-btn" routerLink="/signup">
@@ -26,12 +26,12 @@
         </ion-button>
       </div>
       <div class="hero-image">
-        <img src="assets/images/dog-walking-hero.jpg" alt="Happy dogs being walked in the park">
+        <img [src]="heroImagePath" alt="Happy dogs being walked in the park">
       </div>
     </div>
 
     <div class="features-section">
-      <h2>Why Choose Dog Walker?</h2>
+      <h2>Why Choose {{ appName }}?</h2>
       
       <div class="features-grid">
         <ion-card class="feature-card">
@@ -94,7 +94,7 @@
       </div>
 
       <div class="footer-bottom">
-        <p>&copy; {{currentYear}} Dog Walker. All rights reserved.</p>
+        <p>&copy; {{currentYear}} {{ appName }}. All rights reserved.</p>
         <div class="legal-links">
           <a routerLink="/privacy">Privacy Policy</a>
           <span class="separator">|</span>

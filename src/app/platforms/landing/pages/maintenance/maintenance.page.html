@@ -12,10 +12,12 @@
 
       <div class="contact-info">
         <p>If you need immediate assistance, please contact us:</p>
-        <a href="mailto:support&#64;dogwalker.com" class="support-link">
+        <div class="support-info">
           <ion-icon name="mail-outline"></ion-icon>
-          support&#64;dogwalker.com
-        </a>
+          <a [href]="'mailto:' + supportEmail" class="support-link">
+            {{ supportEmail }}
+          </a>
+        </div>
       </div>
     </div>
   </div>

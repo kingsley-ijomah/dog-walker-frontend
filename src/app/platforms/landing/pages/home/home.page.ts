@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { NgIf } from '@angular/common';
 import {
@@ -21,11 +21,12 @@ import {
   logoInstagram
 } from 'ionicons/icons';
 import { AuthService } from '../../../../auth/services/auth.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-home',
-  templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
+  templateUrl: './home.page.html',
+  styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
     RouterLink,
@@ -40,8 +41,11 @@ import { AuthService } from '../../../../auth/services/auth.service';
     IonIcon
   ],
 })
-export class HomePage {
+export class HomePage implements OnInit {
   isAuthenticated = false;
+  appName = environment.appName;
+  heroImagePath = environment.assetPaths.heroImage;
+  currentYear = environment.companyInfo.year;
 
   constructor(
     private authService: AuthService,
@@ -55,15 +59,19 @@ export class HomePage {
       logoTwitter,
       logoInstagram
     });
-
-    // Subscribe to authentication state
-    this.authService.isAuthenticated().subscribe(
-      isAuth => this.isAuthenticated = isAuth
-    );
   }
 
-  get currentYear(): number {
-    return new Date().getFullYear();
+  ngOnInit() {
+    // Check authentication status when component initializes
+    this.checkAuth();
+  }
+
+  private checkAuth() {
+    this.authService.isAuthenticated().subscribe(
+      (isAuth) => {
+        this.isAuthenticated = isAuth;
+      }
+    );
   }
 
   logout() {
