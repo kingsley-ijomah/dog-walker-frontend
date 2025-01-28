@@ -21,7 +21,7 @@ export class ProfilePopoverComponent {
 
   async navigateToProfile() {
     await this.popoverController.dismiss();
-    this.router.navigate(['/tabs/profile']);
+    this.router.navigate(['/profile']);
   }
 
   async logout() {

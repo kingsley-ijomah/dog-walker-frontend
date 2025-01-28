@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/pages/verify-otp/verify-otp.page').then(m => m.VerifyOtpPage)
   },
   {
+    path: 'profile',
+    loadComponent: () => import('./shared/pages/profile/profile.page').then(m => m.ProfilePage)
+  },
+  {
     path: 'guest',
     loadComponent: () => import('./platforms/guest/guest.component').then(m => m.GuestComponent),
     loadChildren: () => import('./platforms/guest/guest.route').then(m => m.routes)
@@ -30,5 +34,10 @@ export const routes: Routes = [
     path: 'admin',
     loadComponent: () => import('./platforms/admin/admin.component').then(m => m.AdminComponent),
     loadChildren: () => import('./platforms/admin/admin.route').then(m => m.routes)
+  },
+  {
+    path: 'owner',
+    loadComponent: () => import('./platforms/owner/owner.component').then(m => m.OwnerComponent),
+    loadChildren: () => import('./platforms/owner/owner.route').then(m => m.routes)
   }
 ];
