@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { logOutOutline, settingsOutline, personOutline } from 'ionicons/icons';
-import { AuthService } from '../../../services/auth/auth.service';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'app-profile-popover',

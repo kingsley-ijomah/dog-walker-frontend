@@ -239,6 +239,26 @@ isPlatformAdmin(): Observable<boolean> {
   }
 }
 
+/**
+ * Checks if the current user has an owner role. isPlatformAdmin is same as isOwner
+ * 
+ * - Compares the user's role with the predefined owner role value.
+ * - If `currentUser` is not set, it calls `getCurrentUser()` to fetch the stored user data from storage.
+ * 
+ * @returns Observable<boolean> - Emits true if the user is an owner, otherwise false.
+ */
+isOwner(): Observable<boolean> {
+  if (this.userRole === this.ROLES.platformAdmin) {
+    return new Observable(observer => {
+      observer.next(true);
+      observer.complete();
+    });
+  } else {
+    return this.getCurrentUser().pipe(
+      map(user => user && user.role === this.ROLES.platformAdmin)
+    );
+  }
+}
 
 /**
  * Retrieves the current user from memory. 

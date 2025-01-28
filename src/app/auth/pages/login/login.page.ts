@@ -6,7 +6,7 @@ import { SignInMutation } from '../../../graphql/mutations/auth/signIn.mutation'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { BaseGraphQLPage } from '../../../shared/base/base-graphql.page';
-import { AuthService } from '../../../services/auth/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { ErrorService } from '../../../services/errors/error.service';
 import {
   IonHeader,
