@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./home/home.page').then(m => m.HomePage)
+    loadComponent: () => import('./platforms/landing/pages/home/home.page').then(m => m.HomePage)
   },
   {
     path: 'signup',
@@ -22,8 +22,13 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/pages/verify-otp/verify-otp.page').then(m => m.VerifyOtpPage)
   },
   {
-    path: 'tabs',
-    loadComponent: () => import('./tabs/tabs.component').then(m => m.TabsComponent),
-    loadChildren: () => import('./tabs/tabs.route').then(m => m.routes)
+    path: 'guest',
+    loadComponent: () => import('./platforms/guest/guest.component').then(m => m.GuestComponent),
+    loadChildren: () => import('./platforms/guest/guest.route').then(m => m.routes)
   },
+  {
+    path: 'admin',
+    loadComponent: () => import('./platforms/admin/admin.component').then(m => m.AdminComponent),
+    loadChildren: () => import('./platforms/admin/admin.route').then(m => m.routes)
+  }
 ];
