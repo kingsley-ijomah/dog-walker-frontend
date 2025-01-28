@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { personOutline, logOutOutline } from 'ionicons/icons';
-import { Router } from '@angular/router';
+import { logOutOutline, settingsOutline, personOutline } from 'ionicons/icons';
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-profile-popover',
@@ -11,34 +12,53 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [IonicModule]
 })
-export class ProfilePopoverComponent {
-  constructor(
-    private router: Router,
-    private popoverController: PopoverController
-  ) {
-    addIcons({ personOutline, logOutOutline });
-  }
-
-  async navigateToProfile() {
-    await this.popoverController.dismiss();
-    this.router.navigate(['/profile']);
-  }
-
-  async logout() {
-    await this.popoverController.dismiss();
-    console.log('Logout clicked');
-  }
-
+export class ProfilePopoverComponent implements OnInit {
   menuItems = [
-    { 
-      icon: 'person-outline', 
-      text: 'Edit Profile', 
-      action: () => this.navigateToProfile()
+    {
+      text: 'Profile',
+      icon: 'person-outline',
+      action: () => this.goToProfile()
     },
-    { 
-      icon: 'log-out-outline', 
-      text: 'Logout', 
+    {
+      text: 'Settings',
+      icon: 'settings-outline',
+      action: () => this.goToSettings()
+    },
+    {
+      text: 'Logout',
+      icon: 'log-out-outline',
       action: () => this.logout()
     }
   ];
+
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private popoverController: PopoverController
+  ) {
+    addIcons({
+      logOutOutline,
+      settingsOutline,
+      personOutline
+    });
+  }
+
+  ngOnInit() {}
+
+  goToProfile() {
+    this.popoverController.dismiss();
+    this.router.navigate(['/profile']);
+  }
+
+  goToSettings() {
+    this.popoverController.dismiss();
+    this.router.navigate(['/settings']);
+  }
+
+  logout() {
+    this.authService.logout().subscribe(() => {
+      this.popoverController.dismiss();
+      this.router.navigate(['/login']);
+    });
+  }
 }

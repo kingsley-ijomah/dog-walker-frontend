@@ -6,7 +6,7 @@ import { SignInMutation } from '../../../graphql/mutations/auth/signIn.mutation'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { BaseGraphQLPage } from '../../../shared/base/base-graphql.page';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService } from '../../../services/auth/auth.service';
 import { ErrorService } from '../../../services/errors/error.service';
 import {
   IonHeader,
@@ -112,19 +112,25 @@ export class LoginPage implements OnInit {
     forkJoin({
       isAdmin: this.authService.isAdmin(),
       isPlatformAdmin: this.authService.isPlatformAdmin(),
-    }).subscribe(({ isAdmin, isPlatformAdmin }) => {
+      isGuest: this.authService.isGuest(),
+    }).subscribe(({ isAdmin, isPlatformAdmin, isGuest }) => {
+
+      if (isPlatformAdmin) {
+        this.router.navigate(['/owner/dashboard']);
+        return;
+      }
 
       if (isAdmin) {
         this.router.navigate(['/admin/dashboard']);
         return;
       }
-  
-      if (isPlatformAdmin) {
-        this.router.navigate(['/platform-admin/dashboard']);
+
+      if (isGuest) {
+        this.router.navigate(['/guest/dashboard']);
         return;
       }
   
-      this.router.navigate(['/dashboard']);  // Fallback if neither admin nor platform admin
+      this.router.navigate(['/']);  // Fallback if neither admin, platform admin, or guest
     });
   }
 

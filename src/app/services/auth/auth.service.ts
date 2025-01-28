@@ -134,7 +134,6 @@ export class AuthService {
           .pipe(
             map((response: any) =>  {
               const result = response.data.signIn
-              console.log('result', result);
               if (result.errors && result.errors.length > 0) {
                 throw this.errorService.validationError(result.errors);
               }
