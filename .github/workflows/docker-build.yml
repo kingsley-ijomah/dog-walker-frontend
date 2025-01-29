@@ -5,7 +5,7 @@ on:
     paths:
       - '**'
     branches:
-      - main
+      - auth
 
 jobs:
   build-and-push:
