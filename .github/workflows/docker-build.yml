@@ -1,0 +1,66 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    paths:
+      - '**'
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.SPACES_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.SPACES_SECRET_ACCESS_KEY }}
+      SPACES_REGION: ${{ secrets.SPACES_REGION }} 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Create directories
+        run: |
+          mkdir -p www/frontend
+          mkdir -p nginx/html
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: image=moby/buildkit:latest
+
+      - name: Build frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: production
+          load: true
+          tags: frontend-build:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/frontend-build:cache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/frontend-build:cache,mode=max
+
+      - name: Copy build artifacts
+        run: |
+          docker create --name frontend-container frontend-build:latest
+          docker cp frontend-container:/app/www/frontend/. ./www/frontend/
+          docker rm frontend-container
+
+      - name: Upload to DigitalOcean Spaces
+        run: |
+          aws s3 sync www/frontend/ s3://codehance-frontend-site-assets/www \
+            --endpoint-url https://${{ env.SPACES_REGION }}.digitaloceanspaces.com \
+            --acl public-read
+
+      # - name: Trigger DEVOPS Deployment
+      #   if: success()
+      #   uses: peter-evans/repository-dispatch@v2
+      #   with:
+      #     token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      #     repository: ${{ github.repository_owner }}/CODEHANCE-DEVOPS
+      #     event-type: frontend-updated
+      #     client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
